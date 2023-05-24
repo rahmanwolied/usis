@@ -56,7 +56,7 @@ client.on('interactionCreate', async (interaction) => {
 		}
 		let courses = [];
 		for (let i = 0; i < courseNames.length; i++) {
-			let section = sections[i].split(' ');
+			if (sections) var section = sections[i].split(' ');
 			if (faculties) var faculty = faculties[i].split(' ');
 			courses.push({
 				name: courseNames[i],
@@ -68,6 +68,8 @@ client.on('interactionCreate', async (interaction) => {
 		await interaction.channel.send('Starting Fetch...');
 
 		let data = await useData(cookie, courses, false);
+
+		console.log('DATAAAAAA: ' + data);
 
 		const embed = new EmbedBuilder()
 			.setTitle('Course Status')
