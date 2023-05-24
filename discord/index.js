@@ -71,14 +71,10 @@ client.on('interactionCreate', async (interaction) => {
 
 		console.log('DATAAAAAA: ' + data);
 
-		const embed = new EmbedBuilder()
-			.setTitle('Course Status')
-			.setDescription(`Here is the status of ${courseNames}`)
-			.setColor('Random')
-			.addFields({
-				name: 'Course',
-				value: data,
-			});
+		const embed = new EmbedBuilder().setTitle('Course Status').setColor('Random').addFields({
+			name: 'Course',
+			value: data,
+		});
 
 		await interaction.channel.send('Fetch ended');
 		await interaction.followUp({ embeds: [embed] });
@@ -103,6 +99,8 @@ client.on('interactionCreate', async (interaction) => {
 				return;
 			}
 			let courses = [];
+			await interaction.channel.send('Monitoring data for: ');
+
 			for (let i = 0; i < courseNames.length; i++) {
 				let section = sections[i].split(' ');
 				if (faculties) var faculty = faculties[i].split(' ');
@@ -111,6 +109,7 @@ client.on('interactionCreate', async (interaction) => {
 					sections: section,
 					faculties: faculty,
 				});
+				await interaction.channel.send(`${courseNames[i].toUpperCase()}(${section})`);
 			}
 
 			const cookie = await getCookie(filePath);
