@@ -1,8 +1,8 @@
 require('dotenv').config();
 const { Client, IntentsBitField, EmbedBuilder } = require('discord.js');
 const cron = require('node-cron');
-const { spawn } = require('child_process');
 const { useData, getCookie } = require('../getStatus');
+const login = require('../login');
 const filePath = './cookies.json';
 
 // function startCronTask(cookie, courses) {
@@ -67,9 +67,7 @@ client.on('interactionCreate', async (interaction) => {
 
 		await interaction.channel.send('Starting Fetch...');
 
-		let data = await useData(cookie, courses, false);
-
-		console.log('DATAAAAAA: ' + data);
+		let data = await useData(cookie, courses, false, interaction);
 
 		const embed = new EmbedBuilder().setTitle('Course Status').setColor('Random').addFields({
 			name: 'Course',
@@ -87,8 +85,12 @@ client.on('interactionCreate', async (interaction) => {
 			return;
 		} else {
 			monitoring = true;
+			let requests = 0;
 
 			await interaction.reply('Starting task...');
+			await interaction.channel.send('Loging in...');
+			await login();
+			await interaction.channel.send('Logged in');
 
 			const courseNames = interaction.options.get('course-names').value.split(' ');
 			const sections = interaction.options.get('sections').value.split(', ');
@@ -114,16 +116,21 @@ client.on('interactionCreate', async (interaction) => {
 
 			const cookie = await getCookie(filePath);
 
-			task = cron.schedule('*/30 * * * * *', async () => {
-				let data = await useData(cookie, courses, true);
+			task = cron.schedule('*/20 * * * * *', async () => {
+				let output = await useData(cookie, courses, true, interaction);
+				let data = output[0];
+				requests += output[1];
+				// await client.channels.cache.get(1110865943665582102).setName(`📁 requests-${requests}`);
+
 				for (let i = 0; i < data.length; i++) {
-					console.log(`${data[i][2]} Section ${data[i][7]} : ${data[i][10]}`);
+					console.log(`${data[i][2]} Section ${data[i][7]}(${data[i][5]}) : ${data[i][10]}`);
 
 					if (data[i][10] !== '' && data[i][10][0] !== '-') {
 						await interaction.followUp(`${data[i][2]} Section ${data[i][7]} : ${data[i][10]}`);
 					}
 				}
 				console.log('\n');
+				console.log('request count: ' + requests.toString() + '\n');
 			});
 
 			await interaction.channel.send('Task Started');

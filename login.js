@@ -2,16 +2,19 @@ const puppeteer = require('puppeteer');
 const fs = require('fs').promises;
 const { stringify } = require('querystring');
 
-async function login() {
+require('dotenv').config();
+
+async function login(interaction) {
 	console.log('Logging in...');
+
 	const browser = await puppeteer.launch({ headless: 'new' });
 	const page = await browser.newPage();
 
 	await page.goto('https://usis.bracu.ac.bd/academia/');
 
 	// Type into search box
-	await page.type('#username', 'mosheur.r.wolied@gmail.com');
-	await page.type('#password', '@Wolied123');
+	await page.type('#username', process.env.email);
+	await page.type('#password', process.env.pass);
 
 	// Wait and click on first result
 	const login = '#ctl00_leftColumn_ctl00_btnLogin';

@@ -19,6 +19,7 @@ async function getCookie(path) {
 async function fetchData(cookieParsed, courses, monitor) {
 	let output = '';
 	let jsonOutput = [];
+	let requests = 0;
 	for (let i = 0; i < courses.length; i++) {
 		let course = courses[i];
 		let url = `https://usis.bracu.ac.bd/academia/studentCourse/showCourseStatusList?query=${course.name}&academiaSession=627121&_search=false&nd=1684693332808&rows=50&page=1&sidx=id&sord=desc`;
@@ -43,6 +44,7 @@ async function fetchData(cookieParsed, courses, monitor) {
 		};
 
 		const response = await fetch(url, requestOptions);
+		requests++;
 
 		if (!response.ok) {
 			console.log('Request failed with status ' + response.status);
@@ -81,11 +83,11 @@ async function fetchData(cookieParsed, courses, monitor) {
 			}
 		}
 	}
-	if (monitor) return jsonOutput;
+	if (monitor) return [jsonOutput, requests];
 	return output;
 }
 
-async function useData(cookieParsed, courses, monitor) {
+async function useData(cookieParsed, courses, monitor, interaction) {
 	try {
 		const output = await fetchData(cookieParsed, courses, monitor);
 		return output;
@@ -93,14 +95,22 @@ async function useData(cookieParsed, courses, monitor) {
 		console.error(error);
 		if (error.message === 'Cookie Expired. Resetting the request') {
 			console.log('Cookie Expired. Resetting the request after 10 seconds');
+			await interaction.channel.send('Cookie Expired. Resetting the request after 10 seconds');
+
 			await login();
 			cookieParsed = await getCookie(filePath);
+
+			await interaction.channel.send(`Cookie: ${cookieParsed}`);
 		} else {
 			console.log('Error occurred. Retrying after 10 seconds');
+			await interaction.channel.send('Error occurred. Retrying after 10 seconds');
 		}
 
-		await delay(10000); // Wait for 10000 milliseconds (10 seconds)
+		console.log('start delay');
+		await delay(1000); // Wait for 10000 milliseconds (10 seconds)
+		console.log('end delay');
 
+		console.log('new cookie: ' + cookieParsed);
 		return useData(cookieParsed, courses, monitor); // Retry the fetchData function
 	}
 }
