@@ -4,6 +4,7 @@ const cron = require('node-cron');
 const { useData, getCookie } = require('../getStatus');
 const login = require('../login');
 const filePath = './cookies.json';
+const findEmptyLab = require('../findEmptyLab');
 
 // function startCronTask(cookie, courses) {
 // 	courses = JSON.stringify(courses);
@@ -154,6 +155,21 @@ client.on('interactionCreate', async (interaction) => {
 				await interaction.followUp('No task to stop.');
 			}
 		}
+	}
+
+	if (interaction.commandName === 'find-empty-lab') {
+		await interaction.reply('Start...');
+		const output = await findEmptyLab();
+		const freeLabs = output.freeLabs.join('\n');
+		console.log(freeLabs);
+
+		const embed = new EmbedBuilder().setTitle('Empty Labs').setColor('Random').addFields({
+			name: 'Labs',
+			value: freeLabs,
+		});
+
+		await interaction.followUp({ embeds: [embed] });
+		await interaction.channel.send('Task Ended');
 	}
 });
 

@@ -52,7 +52,11 @@ const commands = [
 	},
 	{
 		name: 'stop-monitoring',
-		description: 'Stops monitoring the courses',
+		description: 'Stops monitoring the courses.',
+	},
+	{
+		name: 'find-empty-lab',
+		description: 'Finds an empty lab for you to chill in.',
 	},
 ];
 
