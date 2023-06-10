@@ -94,14 +94,28 @@ module.exports = async () => {
 		}
 	});
 	const occupiedLabs = [...new Set(arr)];
-	const freeLabs = labs.filter((lab) => !occupiedLabs.includes(lab));
+	const freeLabs = labs.filter((lab) => !occupiedLabs.includes(lab)); // Get the current time
+	let freeLabsWithCourses = [];
+
+	for (let freeLab of freeLabs) {
+		const matchingCourse = schedule.find((course) => {
+			return course.days.some((day) => day.room === freeLab && day.day === 'Th' && day.start >= currentTime);
+		});
+
+		const object = {
+			lab: freeLab,
+			course: matchingCourse,
+		};
+
+		freeLabsWithCourses.push(object);
+	}
 
 	// console.log(freeLabs);
 	// Write schedule to a file
 	output = {
 		labs: labs,
 		schedule: schedule,
-		freeLabs: freeLabs,
+		freeLabs: freeLabsWithCourses,
 	};
 
 	const scheduleString = JSON.stringify(output);

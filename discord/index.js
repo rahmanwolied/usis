@@ -159,14 +159,24 @@ client.on('interactionCreate', async (interaction) => {
 
 	if (interaction.commandName === 'find-empty-lab') {
 		await interaction.reply('Start...');
-		const output = await findEmptyLab();
-		const freeLabs = output.freeLabs.join('\n');
-		console.log(freeLabs);
+		const data = await findEmptyLab();
+		const freeLabsWithCourses = data.freeLabs;
+		let output = '';
+		let i = 1;
+		for (let freeLab of freeLabsWithCourses) {
+			const lab = freeLab.lab;
+			// const course = freeLab.course.courseCode;
+			output += `${i}. ${lab}\n`;
+			i++;
+		}
 
-		const embed = new EmbedBuilder().setTitle('Empty Labs').setColor('Random').addFields({
-			name: 'Labs',
-			value: freeLabs,
-		});
+		const embed = new EmbedBuilder()
+			.setTitle('Empty Labs')
+			.setColor('Random')
+			.addFields({
+				name: `Found ${data.freeLabs.length} labs that are free right now`,
+				value: output,
+			});
 
 		await interaction.followUp({ embeds: [embed] });
 		await interaction.channel.send('Task Ended');
